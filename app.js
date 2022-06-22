@@ -55,15 +55,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+// creating a static route to serve the static files
+
+
 
 /* Error Handlers */
-
-/* 404 handler to catch undefined or non-existent route requests */
-// app.use((req, res, next) => {
-//   console.log('404 error handler called');
-//    //set response to 404 and render the 'page-not-found' view
-//   res.status(404).render('page-not-found');
-// });
 
 /* 404 error handle */
 app.use((req, res, next) => {

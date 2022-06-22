@@ -27,22 +27,32 @@ router.get('/books', asyncHandler(async (req, res) => {
   const books = await Book.findAll();
   res.render('index', { books, title: "Cataloge of Books" });
 
-  console.log(books);
-  console.log(books.map(book => book.toJSON()));
-
+  // console.log(books);
+  // console.log(books.map(book => book.toJSON()));
 
 })
 
 );
 
+/* GET new book form. */
+//shows the create new book form
 
-// get / - Home route should redirect to the /books route
-// get /books - Shows the full list of books
-// get /books/new - Shows the create new book form
-// post /books/new - Posts a new book to the database
-// get /books/:id - Shows book detail form
-// post /books/:id - Updates book info in the database
-// post /books/:id/delete - Deletes a book
+router.get('/books/new', asyncHandler(async (req, res) => {
+  res.render('new-book', { title: "Add a new book" });
+})
+
+);
+
+/* POST new book form. */
+//posts a new book onto the database
+
+
+/* GET book detail form. */
+
+/*POST updates of book info into the database. */
+
+/*POST delete a book. */
+
 
 
 
