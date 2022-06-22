@@ -30,22 +30,21 @@ sequelize
 sequelize
   .sync()
   .then
-  
+
   (async () => {
-        try {
-          await sequelize.authenticate();
-          console.log('Sync successful!');
-        }
-        catch(error)
-        {
-          console.log(`There has been an error. Error: + ${error}`);
-        } 
-      }
+    try {
+      await sequelize.authenticate();
+      console.log('Sync successful!');
+    }
+    catch (error) {
+      console.log(`There has been an error. Error: + ${error}`);
+    }
+  }
   );
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -56,20 +55,48 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
+
+/* Error Handlers */
+
+/* 404 handler to catch undefined or non-existent route requests */
+// app.use((req, res, next) => {
+//   console.log('404 error handler called');
+//    //set response to 404 and render the 'page-not-found' view
+//   res.status(404).render('page-not-found');
+// });
+
+/* 404 error handle */
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
-// error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+/* Global error handler */
+//called when all other errors occur
+//If the error status is 404: Set the response status to 404 and render page-not-found
+//else: 
+//   * Set the error message to the specific given message, or specify a general, 
+//     default error message
+//   * Set response status to the given specific error status OR, set it to 500 by default if no error status is set
+//   * Render the 'error' view, passing it the error object
+app.use((err, req, res, next) => {
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  if (err) {
+    console.log('Global error handler called', err);
+  }
+  if (err.status === 404) {
+    res.status(404).render('page-not-found', { err });
+    console.log("error status already defined");
+  } else {
+    err.message = err.message || `Oops!  It looks like something went wrong on the server.`;
+    res.status(err.status || 500).render('error', { err });
+  }
 });
+
+
+
+
+
 
 module.exports = app;
