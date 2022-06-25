@@ -46,11 +46,22 @@ router.get('/books/new', asyncHandler(async (req, res) => {
 /* Add a new book to the database. */
 
 router.post('/books/new', asyncHandler(async (req, res) => {
-  const book = await Book.create(req.body);
-  res.redirect("/books/" + book.id);
-
-})
-
+  // const book = await Book.create(req.body);
+  // res.redirect("/books/" + book.id);
+  let book;
+    try {
+      book = await Book.create(req.body);
+      res.redirect("/books/" + book.id);
+    } catch (error) {
+      if(error.name === "SequelizeValidationError") { // checking the error
+        book = await Book.build(req.body);
+        res.render("form-error", { book, errors: error.errors, title: "Add a new book" })
+      } else {
+        throw error; // error caught in the asyncHandler's catch block
+      }  
+  
+}
+console.log("validation error");})
 );
 
 
@@ -70,16 +81,33 @@ router.get('/books/:id', asyncHandler(async (req, res) => {
 
 router.post('/books/:id', asyncHandler(async (req, res) => {
  
-  const book = await Book.findByPk(req.params.id);
-  await book.update(req.body);
+//   const book = await Book.findByPk(req.params.id);
+//   await book.update(req.body);
   
-  res.render('update-book', {book: book, title: "Updated book" });
-  // res.redirect("/books/" + book.id);
-  console.log("updated book form");
+//   res.render('update-book', {book: book, title: "Updated book" });
+//   // res.redirect("/books/" + book.id);
+//   console.log("updated book form");
+//   //need to display error if sequel validation error when updating too
+// })
 
+let book;
+    try {
+      book = await Book.findByPk(req.params.id);
+      await book.update(req.body);
+      res.redirect("/books/" + book.id);
+    } catch (error) {
+      if(error.name === "SequelizeValidationError") { // checking the error
+        book = await Book.build(req.body);
+        res.render("form-error", { book, errors: error.errors, title: "Add a new book" })
+      } else {
+        throw error; // error caught in the asyncHandler's catch block
+      }  
+  
+}
+console.log("validation error");
 })
-
 );
+
 
 /*Delete a book. */
 
@@ -93,10 +121,6 @@ router.post('/books/:id/delete', asyncHandler(async (req, res) => {
 })
 
 );
-
-
-
-
 
 
 
