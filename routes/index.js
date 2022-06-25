@@ -34,8 +34,8 @@ router.get('/books', asyncHandler(async (req, res) => {
 
 );
 
-/* GET new book form. */
-//shows the create new book form
+/* Create a new book form. */
+
 
 router.get('/books/new', asyncHandler(async (req, res) => {
   res.render('new-book', { book: {},title: "Add a new book" });
@@ -43,8 +43,7 @@ router.get('/books/new', asyncHandler(async (req, res) => {
 
 );
 
-/* POST new book form. */
-//posts a new book onto the database
+/* Add a new book to the database. */
 
 router.post('/books/new', asyncHandler(async (req, res) => {
   const book = await Book.create(req.body);
@@ -55,40 +54,41 @@ router.post('/books/new', asyncHandler(async (req, res) => {
 );
 
 
-/* GET book update form. */
+/* Displays the book form and option to edit. */
 
 router.get('/books/:id', asyncHandler(async (req, res) => {
   console.log("displaying book form");
-
-  res.render('update-book', {book: {}, title: "Added book to database" });
+  const book = await Book.findByPk(req.params.id);
+  res.render('update-book', {book: book, title: "Added book to database" });
 
 
 })
 
 );
 
-/*POST update of book info into the database. */
+/*Update the book form. */
 
 router.post('/books/:id', asyncHandler(async (req, res) => {
-  console.log("posting book form");
-
+ 
   const book = await Book.findByPk(req.params.id);
   await book.update(req.body);
   
-  res.redirect("/books/" + book.id);
-  //add text to say book has been updated
+  res.render('update-book', {book: book, title: "Updated book" });
+  // res.redirect("/books/" + book.id);
+  console.log("updated book form");
 
 })
 
 );
 
-
-/*POST delete a book. */
-// /books/:id/delete
-
+/*Delete a book. */
 
 router.post('/books/:id/delete', asyncHandler(async (req, res) => {
-  console.log("deleting a book");
+
+  const book = await Book.findByPk(req.params.id);
+  await book.destroy(req.body);
+  res.redirect("/books");
+  console.log("deleted a book");
   
 })
 
