@@ -55,10 +55,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-// creating a static route to serve the static files
-
-
-
 /* Error Handlers */
 
 /* 404 error handle */

@@ -57,7 +57,9 @@ body {
     border-bottom: 2px solid #D8B493;
     text-align: left;
     padding: 5px 20px 5px 10px;
+    color: black;
   }
+  
   
   tr {
     min-height: 50px;
@@ -69,6 +71,7 @@ body {
   
   td {
     padding: 5px 20px 5px 10px;
+    color: black;
   }
   
   label {
