@@ -19,6 +19,16 @@ function asyncHandler(cb) {
   }
 }
 
+function getNumericParameter(query, paramName, defaultVal) {
+  if (query && query[paramName]) {
+    const value = Number.parseInt(query[paramName]);
+    if (!Number.isNaN(value) && value >= 0) {
+      return value;
+    }
+  }
+  return defaultVal;
+}
+
 /* GET home page. */
 router.get('/', asyncHandler(async (req, res) => {
   res.redirect('/books');
@@ -26,30 +36,59 @@ router.get('/', asyncHandler(async (req, res) => {
 
 /* GET books page. */
 router.get('/books', asyncHandler(async (req, res) => {
+
+  const page = getNumericParameter(req.query, "page", 0);
+  const size = getNumericParameter(req.query, "size", 10);
+
+
   let books = null;
   if (!req.query || !req.query.search) {
-    books = await Book.findAll();
+    books = await Book.findAll(
+      {
+        //max number of objects per page
+        limit: size,
+        // number of objects to skip past
+        offset: page * size
+      }
+    );
   } else {
     const queryString = req.query.search;
     console.log(queryString);
     books = await Book.findAll({
+      limit: size,
+      // number of objects to skip past
+      offset: page * size,
       where: {
-[Op.or]: [
-  { title: {
-    [Op.like]: "%" + queryString + "%"
-  }}, { author: {
-    [Op.like]: "%" + queryString + "%"
-  }}, { genre: {
-    [Op.like]: "%" + queryString + "%"
-  }}, { year: {
-    [Op.like]: "%" + queryString + "%"
-  }}
-]     
-      }   
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: "%" + queryString + "%"
+            }
+          }, {
+            author: {
+              [Op.like]: "%" + queryString + "%"
+            }
+          }, {
+            genre: {
+              [Op.like]: "%" + queryString + "%"
+            }
+          }, {
+            year: {
+              [Op.like]: "%" + queryString + "%"
+            }
+          }
+        ]
+      }
     });
   }
 
-  res.render('index', { books, title: "Catalogue of Books" });
+  res.render('index', {
+    books: books,
+    currentPage: page,
+    maxResults: size,
+    // totalPages: Math.ceil(books.count / Number.parseInt(size)),
+    title: "Catalogue of Books"
+  });
 
 })
 
