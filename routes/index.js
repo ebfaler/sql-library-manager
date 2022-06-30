@@ -19,15 +19,19 @@ function asyncHandler(cb) {
   }
 }
 
+
 function getNumericParameter(query, paramName, defaultVal) {
   if (query && query[paramName]) {
     const value = Number.parseInt(query[paramName]);
+
     if (!Number.isNaN(value) && value >= 0) {
       return value;
     }
   }
+  //if any of the above fails, return the defaultVal
   return defaultVal;
 }
+
 
 /* GET home page. */
 router.get('/', asyncHandler(async (req, res) => {
@@ -41,24 +45,16 @@ router.get('/books', asyncHandler(async (req, res) => {
   const size = getNumericParameter(req.query, "size", 10);
 
 
-  let books = null;
-  if (!req.query || !req.query.search) {
-    books = await Book.findAll(
-      {
-        //max number of objects per page
-        limit: size,
-        // number of objects to skip past
-        offset: page * size
-      }
-    );
-  } else {
+  const dbQueryParams = {
+    //max number of objects per page
+    limit: size,
+    // number of objects to skip past
+    offset: page * size
+  };
+  if (req.query && req.query.search) {
     const queryString = req.query.search;
     console.log(queryString);
-    books = await Book.findAll({
-      limit: size,
-      // number of objects to skip past
-      offset: page * size,
-      where: {
+    dbQueryParams.where = {
         [Op.or]: [
           {
             title: {
@@ -78,24 +74,29 @@ router.get('/books', asyncHandler(async (req, res) => {
             }
           }
         ]
-      }
-    });
+      };
   }
-
+  const books = await Book.findAndCountAll(dbQueryParams);
+  console.log(books.count);
+  console.log(Math.ceil(books.count/ size));
   res.render('index', {
-    books: books,
+    books: books.rows,
     currentPage: page,
     maxResults: size,
-    // totalPages: Math.ceil(books.count / Number.parseInt(size)),
+    //the last page to display
+    totalPages: Math.ceil(books.count/ size),
     title: "Catalogue of Books"
+  
   });
 
 })
 
+
+
 );
 
-/* Create a new book form. */
 
+/* Create a new book form. */
 
 router.get('/books/new', asyncHandler(async (req, res) => {
   res.render('new-book', { book: {}, title: "Add a new book" });
@@ -185,41 +186,32 @@ router.post('/books/:id/delete', asyncHandler(async (req, res) => {
 
 /*Search functionality*/
 
-router.get('/books/search/', asyncHandler(async (req, res) => {
+// router.get('/books/search/', asyncHandler(async (req, res) => {
 
-  let searchTerm = req.query.search;
-  console.log(searchTerm);
-  searchTerm = searchTerm.toLowerCase();
-  await Book.findAll(
-    //how to get value of query and why the value is assigned to id
-    {
-      where: {
-        title: {
-          [Op.like]: "%" + searchTerm + "%"
-        }
-      }
-      // author: {
-      //   [Op.like]: "%" + term + "%"
-      // },
-      // genre: {
-      //   [Op.like]: "%" + term + "%"
-      // },
-      // year: {
-      //   [Op.like]: "%" + term + "%"
-      // },
+//   let searchTerm = req.query.search;
+//   console.log(searchTerm);
+//   searchTerm = searchTerm.toLowerCase();
+//   await Book.findAll(
+//     //how to get value of query and why the value is assigned to id
+//     {
+//       where: {
+//         title: {
+//           [Op.like]: "%" + searchTerm + "%"
+//         }
+//       }
 
-    }
-  )
+//     }
+//   )
 
-  // .then(books => res.render("index", { books }));
-  console.log("searching");
+//   // .then(books => res.render("index", { books }));
+//   console.log("searching");
 
 
-  //  res.render('index', { books, title: "Catalogue of Books" });
-  // SELECT * FROM post WHERE title, author, genre, year are defined;
+//   //  res.render('index', { books, title: "Catalogue of Books" });
+//   // SELECT * FROM post WHERE title, author, genre, year are defined;
 
-})
-);
+// })
+// );
 
 
 

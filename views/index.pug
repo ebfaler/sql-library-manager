@@ -3,27 +3,33 @@ block content
     h1= title
     p Welcome to the #{title}
     a(class='button' href='/books/new') Create New Book
-    
+
     form(action="/books" method="GET")
-      p
-        label(for='search') Search
-        input#title(name="search" type='text' placeholder= "Enter search term ")
-        button.btn-search(type="submit") Submit
+        p
+            label(for='search') Search
+            input#title(name="search" type='text' placeholder= "Enter search term ")
+            button.btn-search(type="submit") Submit
 
-        table
-            thead
-                tr
-                    th Title
-                    th Author
-                    th Genre
-                    th Year
-
-            tbody
-                each book in books
+            table
+                thead
                     tr
-                        td
-                            a(href= '/books/' + book.id)= book.title
-                        td= book.author
-                        td= book.genre
-                        td= book.year
+                        th Title
+                        th Author
+                        th Genre
+                        th Year
 
+                tbody
+                    each book in books
+                        tr
+                            td
+                                a(href= '/books/' + book.id)= book.title
+                            td= book.author
+                            td= book.genre
+                            td= book.year
+
+
+        if (currentPage >= 1)
+            a.button(href='/books/?page=' + (currentPage -1) ) Previous Page      
+
+        if(currentPage < (totalPages - 1))
+            a.button(href='/books/?page=' + (currentPage +1) ) Next Page  
