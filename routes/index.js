@@ -19,7 +19,7 @@ function asyncHandler(cb) {
   }
 }
 
-
+//Allow user to specify size and page values
 function getNumericParameter(query, paramName, defaultVal) {
   if (query && query[paramName]) {
     const value = Number.parseInt(query[paramName]);
@@ -38,7 +38,7 @@ router.get('/', asyncHandler(async (req, res) => {
   res.redirect('/books');
 }));
 
-/* GET books page. */
+/* GET books page, displays pagination and performs any search. */
 router.get('/books', asyncHandler(async (req, res) => {
 
   const page = getNumericParameter(req.query, "page", 0);
@@ -52,41 +52,43 @@ router.get('/books', asyncHandler(async (req, res) => {
     offset: page * size
   };
   if (req.query && req.query.search) {
+
     const queryString = req.query.search;
-    console.log(queryString);
+    // console.log(queryString);
     dbQueryParams.where = {
-        [Op.or]: [
-          {
-            title: {
-              [Op.like]: "%" + queryString + "%"
-            }
-          }, {
-            author: {
-              [Op.like]: "%" + queryString + "%"
-            }
-          }, {
-            genre: {
-              [Op.like]: "%" + queryString + "%"
-            }
-          }, {
-            year: {
-              [Op.like]: "%" + queryString + "%"
-            }
+      [Op.or]: [
+        {
+          title: {
+            [Op.like]: "%" + queryString + "%"
           }
-        ]
-      };
+        }, {
+          author: {
+            [Op.like]: "%" + queryString + "%"
+          }
+        }, {
+          genre: {
+            [Op.like]: "%" + queryString + "%"
+          }
+        }, {
+          year: {
+            [Op.like]: "%" + queryString + "%"
+          }
+        }
+      ]
+    };
   }
   const books = await Book.findAndCountAll(dbQueryParams);
-  console.log(books.count);
-  console.log(Math.ceil(books.count/ size));
+  // console.log(books.count);
+  // console.log(Math.ceil(books.count / size));
+
   res.render('index', {
     books: books.rows,
     currentPage: page,
     maxResults: size,
     //the last page to display
-    totalPages: Math.ceil(books.count/ size),
+    totalPages: Math.ceil(books.count / size),
     title: "Catalogue of Books"
-  
+
   });
 
 })
@@ -143,15 +145,6 @@ router.get('/books/:id', asyncHandler(async (req, res) => {
 
 router.post('/books/:id', asyncHandler(async (req, res) => {
 
-  //   const book = await Book.findByPk(req.params.id);
-  //   await book.update(req.body);
-
-  //   res.render('update-book', {book: book, title: "Updated book" });
-  //   // res.redirect("/books/" + book.id);
-  //   console.log("updated book form");
-  //   //need to display error if sequel validation error when updating too
-  // })
-
   let book;
   try {
     book = await Book.findByPk(req.params.id);
@@ -183,39 +176,5 @@ router.post('/books/:id/delete', asyncHandler(async (req, res) => {
 })
 
 );
-
-/*Search functionality*/
-
-// router.get('/books/search/', asyncHandler(async (req, res) => {
-
-//   let searchTerm = req.query.search;
-//   console.log(searchTerm);
-//   searchTerm = searchTerm.toLowerCase();
-//   await Book.findAll(
-//     //how to get value of query and why the value is assigned to id
-//     {
-//       where: {
-//         title: {
-//           [Op.like]: "%" + searchTerm + "%"
-//         }
-//       }
-
-//     }
-//   )
-
-//   // .then(books => res.render("index", { books }));
-//   console.log("searching");
-
-
-//   //  res.render('index', { books, title: "Catalogue of Books" });
-//   // SELECT * FROM post WHERE title, author, genre, year are defined;
-
-// })
-// );
-
-
-
-
-
 
 module.exports = router;

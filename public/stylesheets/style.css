@@ -23,7 +23,16 @@ body {
     border-radius: 2px;
     cursor: pointer;
   }
-  
+
+  form {
+    padding-top: 20px;
+  }
+
+  #previous, #next {
+    margin: 0 auto;
+  }
+
+
   form a.button, input[type=submit] {
     margin-left: 140px;
     transition: 0.4s;
@@ -53,6 +62,10 @@ body {
     padding-top: 20px;
   }
   
+  td, th {
+    min-width: 250px;
+  }
+
   th {
     border-bottom: 2px solid #D8B493;
     text-align: left;
@@ -70,7 +83,7 @@ body {
   }
   
   td {
-    padding: 5px 20px 5px 10px;
+    padding: 25px 20px 5px 10px;
     color: black;
   }
   

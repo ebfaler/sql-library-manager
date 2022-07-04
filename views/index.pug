@@ -26,10 +26,18 @@ block content
                             td= book.author
                             td= book.genre
                             td= book.year
-
-
-        if (currentPage >= 1)
-            a.button(href='/books/?page=' + (currentPage -1) ) Previous Page      
-
-        if(currentPage < (totalPages - 1))
-            a.button(href='/books/?page=' + (currentPage +1) ) Next Page  
+                
+                tfoot 
+                    tr 
+                        td
+                            if (currentPage >= 1)
+                                a.button(id="previous" href='/books/?page=' + (currentPage -1) + '&size=10' ) Previous Page      
+                        td 
+                            p 
+                                 
+                        td 
+                            p 
+                                 
+                        td 
+                            if(currentPage < (totalPages -1 )) 
+                                a.button(id="next" href='/books/?page=' + (currentPage +1) + '&size=10' ) Next Page  
