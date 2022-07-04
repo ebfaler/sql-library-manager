@@ -78,8 +78,6 @@ router.get('/books', asyncHandler(async (req, res) => {
     };
   }
   const books = await Book.findAndCountAll(dbQueryParams);
-  // console.log(books.count);
-  // console.log(Math.ceil(books.count / size));
 
   res.render('index', {
     books: books.rows,
@@ -129,13 +127,25 @@ router.post('/books/new', asyncHandler(async (req, res) => {
 );
 
 
-/* Displays the book form and option to edit. */
+/* Get the book form and option to edit. */
 
-router.get('/books/:id', asyncHandler(async (req, res) => {
-  console.log("displaying book form");
+router.get('/books/:id', asyncHandler(async (req, res,next) => {
+
+  // - If the book exists, render the update-book template,
+  // - Else:
+  //   * Create a new 404 error
+  //   * Forward the error to the global error handler
   const book = await Book.findByPk(req.params.id);
+  if(book) {
+  console.log("displaying book form");
   res.render('update-book', { book: book, title: "Added book to database" });
+} else {
+    const err = new Error();
+    err.status = 404;
+    // err.message = `Looks like the page you requested doesn't exist.`
+    next(err);
 
+}
 
 })
 
